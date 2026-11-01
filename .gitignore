@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Remotion & Build cache
+.remotion/
+build/
+dist/
+
+# Generated Video & Audio Outputs
+out/
+public/outputs/
+public/audio/tts/
+*.mp4
+*.wav
+
+# Logs & Temporary Data
+data/logs.json
+*.log
+
+# Environment variables & Local Credentials
+.env
+.env.local
+data/settings.json

@@ -1,0 +1,26 @@
+{
+  "geminiApiKey": "",
+  "youtube": {
+    "enabled": true,
+    "clientId": "",
+    "clientSecret": "",
+    "refreshToken": "",
+    "defaultPrivacy": "public"
+  },
+  "tiktok": {
+    "enabled": true,
+    "clientKey": "",
+    "clientSecret": "",
+    "accessToken": "",
+    "defaultPrivacy": "PUBLIC_TO_EVERYONE"
+  },
+  "videoConfig": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 30,
+    "durationInSeconds": 60,
+    "template": "ShortVideo",
+    "theme": "dark-neon"
+  },
+  "autoMode": true
+}

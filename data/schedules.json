@@ -1,0 +1,47 @@
+[
+  {
+    "id": "sched-1",
+    "title": "Jadwal Pagi: Trik Matematika SD & SMP",
+    "topic": "[SD] Trik Ajaib Menghitung Persen: 16% dari 50 Sama Dengan 50% dari 16",
+    "timeType": "daily",
+    "timeValue": "07:30",
+    "platforms": [
+      "youtube",
+      "tiktok"
+    ],
+    "enabled": true,
+    "lastRun": "2026-11-01T22:23:44.279Z",
+    "nextRun": null,
+    "status": "processing"
+  },
+  {
+    "id": "sched-2",
+    "title": "Jadwal Siang: Rumus Cepat SMA (Aljabar & Trigonometri)",
+    "topic": "[SMA] Trik Telapak Tangan Mengingat Sudut Istimewa Trigonometri (Sin, Cos, Tan 0°-90°)",
+    "timeType": "daily",
+    "timeValue": "12:30",
+    "platforms": [
+      "youtube",
+      "tiktok"
+    ],
+    "enabled": true,
+    "lastRun": null,
+    "nextRun": null,
+    "status": "idle"
+  },
+  {
+    "id": "sched-3",
+    "title": "Jadwal Malam: Fakta & Konsep Matematika Kuliahan",
+    "topic": "[KULIAHAN] Kenapa e^(iπ) + 1 = 0 Disebut Persamaan Matematika Paling Indah di Alam Semesta?",
+    "timeType": "daily",
+    "timeValue": "19:30",
+    "platforms": [
+      "youtube",
+      "tiktok"
+    ],
+    "enabled": true,
+    "lastRun": null,
+    "nextRun": null,
+    "status": "idle"
+  }
+]

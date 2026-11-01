@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remotion MathStudio - AI Video Publisher Matematika (SD s/d Kuliahan)</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c4a6e'
+            },
+            surface: {
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#090d16'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Navbar / Header -->
+  <header class="border-b border-slate-800 bg-surface-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-xl font-bold">
+          🧮
+        </div>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-amber-200 via-cyan-200 to-white bg-clip-text text-transparent leading-none">
+            Remotion MathStudio
+          </h1>
+          <span class="text-xs text-amber-400 font-medium">AI Video Matematika Viral (SD s/d Kuliahan)</span>
+        </div>
+      </div>
+
+      <!-- Live Clock & Status Badge -->
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 bg-slate-800/80 border border-slate-700/60 rounded-lg px-3 py-1.5 text-xs">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span class="text-slate-400 font-medium">Scheduler:</span>
+          <span class="text-emerald-400 font-semibold">Aktif</span>
+          <span class="text-slate-600">|</span>
+          <span id="liveClock" class="font-mono text-slate-200 font-medium">--:--:--</span>
+        </div>
+
+        <button onclick="openModal('scheduleModal')" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white text-xs sm:text-sm font-semibold px-4 py-2 rounded-lg shadow-lg shadow-cyan-500/25 flex items-center gap-2 transition duration-200">
+          <i data-lucide="clock-plus" class="w-4 h-4"></i>
+          <span>Buat Jadwal Baru</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <div class="border-b border-slate-800/80 bg-surface-900/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex space-x-2 sm:space-x-8 overflow-x-auto py-2 text-sm font-medium">
+        <button onclick="switchTab('tab-dashboard')" id="nav-tab-dashboard" class="tab-btn active-tab flex items-center gap-2 px-3 py-2 rounded-lg transition duration-200">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('tab-schedules')" id="nav-tab-schedules" class="tab-btn inactive-tab flex items-center gap-2 px-3 py-2 rounded-lg transition duration-200">
+          <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+          <span>Jadwal & Topik Otomatis</span>
+        </button>
+        <button onclick="switchTab('tab-generator')" id="nav-tab-generator" class="tab-btn inactive-tab flex items-center gap-2 px-3 py-2 rounded-lg transition duration-200">
+          <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+          <span>Generator Instan</span>
+        </button>
+        <button onclick="switchTab('tab-history')" id="nav-tab-history" class="tab-btn inactive-tab flex items-center gap-2 px-3 py-2 rounded-lg transition duration-200">
+          <i data-lucide="history" class="w-4 h-4"></i>
+          <span>Riwayat Video & Log</span>
+        </button>
+        <button onclick="switchTab('tab-settings')" id="nav-tab-settings" class="tab-btn inactive-tab flex items-center gap-2 px-3 py-2 rounded-lg transition duration-200">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Pengaturan & API</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ==================================================== -->
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <!-- ==================================================== -->
+    <div id="tab-dashboard" class="tab-content space-y-6">
+      <!-- Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Jadwal Aktif</span>
+            <div class="p-2.5 bg-blue-500/10 rounded-xl text-blue-400">
+              <i data-lucide="calendar" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span id="statActiveSchedules" class="text-3xl font-extrabold text-white">0</span>
+            <span class="text-xs text-slate-500">jadwal disiapkan</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Video Dibuat</span>
+            <div class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400">
+              <i data-lucide="clapperboard" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-4 flex items-baseline gap-2">
+            <span id="statTotalCompleted" class="text-3xl font-extrabold text-white">0</span>
+            <span class="text-xs text-emerald-400 font-medium">ter-render sukses</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Integrasi Platform</span>
+            <div class="p-2.5 bg-pink-500/10 rounded-xl text-pink-400">
+              <i data-lucide="share-2" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/15 text-red-400 border border-red-500/20">
+              <i data-lucide="youtube" class="w-3.5 h-3.5"></i> YouTube
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-500/15 text-cyan-400 border border-cyan-500/20">
+              <i data-lucide="music-2" class="w-3.5 h-3.5"></i> TikTok
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 4: Video Card / Dedicated GPU -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Video Card / GPU</span>
+            <div id="gpuStatusIcon" class="p-2.5 bg-emerald-500/10 rounded-xl text-emerald-400">
+              <i data-lucide="monitor" class="w-5 h-5"></i>
+            </div>
+          </div>
+          <div class="mt-3 space-y-1">
+            <div id="gpuNameDisplay" class="text-xs sm:text-sm font-bold text-white truncate" title="Mendeteksi Video Card...">Mendeteksi Video Card...</div>
+            <div id="gpuBadgeDisplay" class="flex items-center gap-1.5 text-xs text-emerald-400 font-medium">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span id="gpuStatusText">Akselerasi GPU Aktif</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action & Architecture Banner -->
+      <div class="bg-gradient-to-r from-surface-900 via-surface-800 to-surface-900 border border-slate-800 rounded-2xl p-6 shadow-md relative overflow-hidden">
+        <div class="relative z-10 max-w-3xl space-y-3">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold">
+            <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+            Otomatisasi Penuh Waktu & Konten
+          </div>
+          <h2 class="text-2xl font-bold text-white tracking-tight">
+            Alur Otomatisasi Video Remotion Berbasis Waktu
+          </h2>
+          <p class="text-sm text-slate-300 leading-relaxed">
+            Sistem bekerja secara otomatis: <b>Tentukan Waktu</b> ➔ <b>Pilih Topik</b> ➔ Saat waktu cocok, AI Gemini membuat <b>Naskah & Kode Props</b> ➔ <b>Remotion Merender Video 9:16</b> ➔ Langsung <b>Upload ke YouTube Shorts & TikTok</b> lengkap dengan judul, deskripsi, dan hashtag viral.
+          </p>
+          <div class="pt-2 flex flex-wrap gap-3">
+            <button onclick="switchTab('tab-generator')" class="bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 shadow-md shadow-cyan-500/20 transition">
+              <i data-lucide="play-circle" class="w-4 h-4"></i> Coba Generate Manual Sekarang
+            </button>
+            <button onclick="switchTab('tab-settings')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 transition">
+              <i data-lucide="key" class="w-4 h-4 text-amber-400"></i> Konfigurasi API Keys
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Active Schedules Table Preview -->
+      <!-- Active Running Jobs Banner -->
+      <div id="activeJobsContainer" class="space-y-3"></div>
+
+      <div class="bg-surface-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="calendar-range" class="w-5 h-5 text-cyan-400"></i>
+            <h3 class="text-base font-bold text-white">Daftar Jadwal Tayang Otomatis</h3>
+          </div>
+          <button onclick="switchTab('tab-schedules')" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1">
+            Lihat Semua Jadwal <i data-lucide="chevron-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-800/60 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="px-5 py-3 font-semibold">Nama Jadwal</th>
+                <th class="px-5 py-3 font-semibold">Waktu Eksekusi</th>
+                <th class="px-5 py-3 font-semibold">Topik Video</th>
+                <th class="px-5 py-3 font-semibold">Platform</th>
+                <th class="px-5 py-3 font-semibold">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardScheduleList" class="divide-y divide-slate-800/60">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 2: SCHEDULES & TOPIC BANK -->
+    <!-- ==================================================== -->
+    <div id="tab-schedules" class="tab-content hidden space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white">Manajemen Jadwal Waktu & Topik</h2>
+          <p class="text-xs text-slate-400">Atur waktu rutin (harian/tanggal) dan topik video yang akan dieksekusi secara otomatis.</p>
+        </div>
+        <button onclick="openModal('scheduleModal')" class="bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-2 self-start sm:self-auto transition shadow-md shadow-cyan-500/20">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah Jadwal Baru
+        </button>
+      </div>
+
+      <!-- Schedule Cards List -->
+      <div id="fullScheduleList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Topic Bank Section -->
+      <div class="bg-surface-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="p-2 bg-amber-500/10 rounded-xl text-amber-400">
+              <i data-lucide="layers" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">Bank Antrean Topik (Topic Queue)</h3>
+              <p class="text-xs text-slate-400">Jika jadwal diset "Otomatis", sistem akan mengambil topik dari antrean ini dan merotasikannya.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="generateAiTopicsToBank()" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              <span>+ Tambah 5 Topik Baru dengan AI</span>
+            </button>
+            <button onclick="saveTopicBank()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 text-xs font-semibold px-4 py-2 rounded-lg transition">
+              Simpan Perubahan Topik
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Daftar Topik (Satu baris per topik):</label>
+          <textarea id="topicBankInput" rows="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 3: INSTANT MANUAL GENERATOR -->
+    <!-- ==================================================== -->
+    <div id="tab-generator" class="tab-content hidden space-y-6">
+      <div class="bg-surface-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-1">
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="sparkles" class="w-5 h-5 text-amber-400"></i>
+            Generator Instan Video Matematika (1 Menit)
+          </h2>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              <i data-lucide="timer" class="w-3.5 h-3.5"></i> Durasi 1 Menit
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5"></i> Narasi Suara Pengarah (TTS)
+            </span>
+            <span id="genGpuBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> <span id="genGpuName">Akselerasi GPU Aktif</span>
+            </span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 mb-6">Buat naskah AI, hasilkan narasi suara pengarah berbahasa Indonesia yang membacakan teks, render video 60 detik multi-layout, maskot animasi, musik ceria, dan kuis interaktif.</p>
+
+        <form id="instantGenerateForm" onsubmit="handleInstantGenerate(event)" class="space-y-5">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>Topik / Soal Matematika:</span>
+              </label>
+              <span class="text-[11px] text-emerald-400 font-medium">⚡ Klik topik langsung diproses AI secara instan (1-Click)</span>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-2">
+              <div class="relative flex-1">
+                <input type="text" id="genTopic" required placeholder="Pilih jenjang SD, SMP, SMA, KULIAH di bawah (atau ketik topik sendiri)..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition font-medium">
+              </div>
+
+              <button type="submit" id="btnStartGenerateTop" class="bg-gradient-to-r from-amber-500 via-orange-500 to-cyan-500 hover:from-amber-600 hover:to-cyan-600 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 transition whitespace-nowrap">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                <span>⚡ Minta AI & Proses Video Sekarang</span>
+              </button>
+            </div>
+            
+            <!-- Quick Level Buttons: SD, SMP, SMA, KULIAH ONLY -->
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <span class="text-slate-400 text-xs font-semibold mr-1 flex items-center gap-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Klik Jenjang untuk Buatkan Topik AI:
+              </span>
+              <button type="button" onclick="clickLevelToFetchAiTopics('SD')" class="bg-amber-500/10 hover:bg-amber-500/20 text-yellow-400 border border-yellow-500/40 hover:border-yellow-400 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs shadow-sm hover:scale-105 active:scale-95 duration-150">
+                <span class="text-sm">🎒</span>
+                <span>SD</span>
+              </button>
+              <button type="button" onclick="clickLevelToFetchAiTopics('SMP')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 hover:border-cyan-400 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs shadow-sm hover:scale-105 active:scale-95 duration-150">
+                <span class="text-sm">📐</span>
+                <span>SMP</span>
+              </button>
+              <button type="button" onclick="clickLevelToFetchAiTopics('SMA')" class="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/40 hover:border-purple-400 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs shadow-sm hover:scale-105 active:scale-95 duration-150">
+                <span class="text-sm">📊</span>
+                <span>SMA</span>
+              </button>
+              <button type="button" onclick="clickLevelToFetchAiTopics('KULIAH')" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:border-emerald-400 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs shadow-sm hover:scale-105 active:scale-95 duration-150">
+                <span class="text-sm">🎓</span>
+                <span>KULIAH</span>
+              </button>
+            </div>
+
+            <!-- Dynamic AI-Generated Topics Box for Selected Level -->
+            <div id="aiLevelTopicsContainer" class="hidden mt-4 bg-slate-950 border border-amber-500/30 rounded-2xl p-5 space-y-4 shadow-xl">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                      <span id="aiTopicsHeaderLevel" class="text-amber-400">Pilihan Topik AI</span>
+                      <span class="text-slate-400 text-xs font-normal">| Pilih topik untuk langsung diproses & render video</span>
+                    </h4>
+                  </div>
+                </div>
+                <button type="button" onclick="closeAiLevelTopics()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- Loading Indicator -->
+              <div id="aiTopicsLoading" class="p-8 text-center space-y-3">
+                <div class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                  <div class="w-5 h-5 rounded-full border-2 border-amber-400 border-t-transparent animate-spin"></div>
+                </div>
+                <div class="text-xs font-semibold text-amber-300" id="aiTopicsLoadingText">
+                  AI Gemini sedang merangkai ide materi matematika baru...
+                </div>
+                <div class="text-[11px] text-slate-500">Mencari materi dan trik berhitung seru yang segar langsung dari AI.</div>
+              </div>
+
+              <!-- Generated Topics List Grid -->
+              <div id="aiTopicsGrid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              Platform Target Otomatis:
+            </label>
+            <div class="flex flex-wrap gap-4">
+              <label class="flex items-center gap-2.5 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 cursor-pointer hover:border-slate-700 transition">
+                <input type="checkbox" id="genPlatformYt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-800 focus:ring-0">
+                <i data-lucide="youtube" class="w-4 h-4 text-red-500"></i>
+                <span class="text-xs font-medium text-slate-200">YouTube Shorts</span>
+              </label>
+
+              <label class="flex items-center gap-2.5 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 cursor-pointer hover:border-slate-700 transition">
+                <input type="checkbox" id="genPlatformTt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-800 focus:ring-0">
+                <i data-lucide="music-2" class="w-4 h-4 text-cyan-400"></i>
+                <span class="text-xs font-medium text-slate-200">TikTok Video</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="pt-2 flex items-center gap-3">
+            <button type="submit" id="btnStartGenerate" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-cyan-500/25 flex items-center gap-2 transition">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>⚡ Minta AI & Proses Video Sekarang</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Real-time Live Progress Panel -->
+      <div id="liveProgressContainer" class="hidden bg-surface-900 border border-cyan-500/30 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-cyan-400 animate-ping"></div>
+            <h3 class="text-base font-bold text-white">Status Eksekusi Pipeline</h3>
+          </div>
+          <span id="liveProgressPercent" class="text-sm font-mono font-bold text-cyan-400">0%</span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
+          <div id="liveProgressBar" class="bg-gradient-to-r from-cyan-500 via-blue-500 to-pink-500 h-full w-0 transition-all duration-300"></div>
+        </div>
+
+        <p id="liveProgressMessage" class="text-xs font-mono text-slate-300">Menyiapkan alur pipeline...</p>
+
+        <!-- Stepper Visual -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+          <div id="step-ai" class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <i data-lucide="bot" class="w-5 h-5 text-slate-500"></i>
+            <div>
+              <div class="text-xs font-bold text-slate-300">1. Generate Naskah AI</div>
+              <div class="text-[11px] text-slate-500">Judul, Deskripsi & Props</div>
+            </div>
+          </div>
+          <div id="step-render" class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <i data-lucide="film" class="w-5 h-5 text-slate-500"></i>
+            <div>
+              <div class="text-xs font-bold text-slate-300">2. Render Remotion</div>
+              <div class="text-[11px] text-slate-500">Komposisi 1080x1920 MP4</div>
+            </div>
+          </div>
+          <div id="step-upload" class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-500"></i>
+            <div>
+              <div class="text-xs font-bold text-slate-300">3. Auto Upload</div>
+              <div class="text-[11px] text-slate-500">YouTube & TikTok API</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- CHECKPOINT 1: REVIEW & APPROVE AI SCRIPT -->
+        <!-- ============================================== -->
+        <div id="scriptApprovalContainer" class="hidden pt-4 border-t border-slate-800 space-y-4">
+          <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="p-2 bg-amber-500/20 rounded-lg text-amber-400 mt-0.5">
+                <i data-lucide="file-check-2" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-amber-300">Naskah AI Berhasil Dibuat! Silakan Tinjau Konten</h4>
+                <p class="text-xs text-slate-300 mt-0.5">Periksa judul, naskah narasi suara, dan 5 scene di bawah. Pilih apakah ingin melanjutkan untuk merender video ini atau membatalkannya.</p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
+              Menunggu Persetujuan
+            </span>
+          </div>
+
+          <!-- Naskah Overview Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span id="scriptLevelBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">🎒 LEVEL SD</span>
+                <span id="scriptMascotBadge" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30">Maskot: 🦉</span>
+                <span id="scriptThemeBadge" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">Tema: kids-arcade</span>
+              </div>
+              <span class="text-xs text-slate-400 font-medium">Durasi Target: 60 Detik (1 Menit)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+              <div class="space-y-1">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">📺 Judul YouTube Shorts:</span>
+                <div id="scriptYtTitle" class="font-bold text-white bg-slate-900 border border-slate-800 p-2.5 rounded-lg text-sm">--</div>
+              </div>
+              <div class="space-y-1">
+                <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">🎵 Caption TikTok & Hashtag:</span>
+                <div id="scriptTtTitle" class="font-medium text-slate-200 bg-slate-900 border border-slate-800 p-2.5 rounded-lg">--</div>
+              </div>
+            </div>
+
+            <div class="space-y-1 text-xs">
+              <span class="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">📄 Deskripsi Konten & Penjelasan:</span>
+              <p id="scriptDescription" class="text-slate-300 bg-slate-900/80 border border-slate-800/80 p-3 rounded-lg leading-relaxed whitespace-pre-line max-h-32 overflow-y-auto font-mono text-[11px]">--</p>
+            </div>
+
+            <!-- 5 Scenes Accordion / Cards Preview -->
+            <div class="space-y-2 pt-2">
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i> Rincian 5 Scene Video (Visual & Narasi Suara):
+              </span>
+              <div id="scriptScenesList" class="grid grid-cols-1 md:grid-cols-5 gap-2.5">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- Checkpoint 1 Action Buttons -->
+            <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <button type="button" id="btnApproveRender" onclick="approveCurrentJobRender()" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center gap-2 transition hover:scale-105 active:scale-95 duration-150">
+                  <i data-lucide="play-circle" class="w-5 h-5"></i>
+                  <span>🎬 Ya, Lanjut Jadikan Video (Render Sekarang)</span>
+                </button>
+                <button type="button" onclick="cancelCurrentJob()" class="bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-500/30 text-xs font-semibold px-4 py-3 rounded-xl transition flex items-center gap-1.5">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  <span>Batalkan / Buang Naskah</span>
+                </button>
+              </div>
+              <span class="text-[11px] text-slate-400">Akselerasi Video Card GPU siap digunakan untuk rendering</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- CHECKPOINT 2: REVIEW & APPROVE UPLOAD -->
+        <!-- ============================================== -->
+        <div id="uploadApprovalContainer" class="hidden pt-4 border-t border-slate-800 space-y-4">
+          <div class="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="p-2 bg-cyan-500/20 rounded-lg text-cyan-400 mt-0.5">
+                <i data-lucide="clapperboard" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-cyan-300">Video Berhasil Dibuat! Tonton Preview & Konfirmasi Upload</h4>
+                <p class="text-xs text-slate-300 mt-0.5">Video 60 detik telah dirender lengkap dengan suara narasi pengarah dan musik. Tonton videonya di bawah ini sebelum memutuskan untuk mempublikasikan.</p>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shrink-0">
+              Siap Upload
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 bg-slate-950 border border-slate-800 rounded-xl p-5">
+            <!-- Left: Video Player -->
+            <div class="flex flex-col items-center justify-center space-y-3">
+              <span class="text-xs font-bold text-slate-400">Preview Video Render Remotion (9:16 - 1080x1920)</span>
+              <video id="approvalVideoPlayer" controls class="max-h-[380px] rounded-xl shadow-xl border border-slate-800 bg-black"></video>
+              <a id="approvalDownloadBtn" href="#" download class="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-semibold transition">
+                <i data-lucide="download" class="w-4 h-4"></i> Unduh File Video MP4
+              </a>
+            </div>
+
+            <!-- Right: Upload Decision & Platform Selection -->
+            <div class="space-y-4 flex flex-col justify-between">
+              <div class="space-y-3">
+                <h5 class="text-sm font-bold text-white">Pilih Platform Tujuan Publikasi:</h5>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-slate-700 p-3 rounded-xl cursor-pointer transition">
+                    <input type="checkbox" id="approvePlatformYt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-700 focus:ring-0">
+                    <i data-lucide="youtube" class="w-5 h-5 text-red-500"></i>
+                    <div>
+                      <div class="text-xs font-bold text-white">YouTube Shorts</div>
+                      <div class="text-[11px] text-slate-400">Upload video vertikal dengan judul & hashtag viral</div>
+                    </div>
+                  </label>
+
+                  <label class="flex items-center gap-3 bg-slate-900 border border-slate-800 hover:border-slate-700 p-3 rounded-xl cursor-pointer transition">
+                    <input type="checkbox" id="approvePlatformTt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-700 focus:ring-0">
+                    <i data-lucide="music-2" class="w-5 h-5 text-cyan-400"></i>
+                    <div>
+                      <div class="text-xs font-bold text-white">TikTok Video</div>
+                      <div class="text-[11px] text-slate-400">Publikasi video otomatis ke akun TikTok Anda</div>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="p-3 bg-slate-900/60 border border-slate-800/80 rounded-xl space-y-1 text-xs text-slate-300">
+                  <div class="text-[11px] text-slate-400">Judul yang akan diunggah:</div>
+                  <div id="approvalUploadTitlePreview" class="font-bold text-white">--</div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="space-y-2 pt-3 border-t border-slate-800">
+                <button type="button" id="btnApproveUpload" onclick="approveCurrentJobUpload()" class="w-full bg-gradient-to-r from-cyan-500 via-blue-600 to-pink-600 hover:from-cyan-600 hover:to-pink-700 text-white font-bold text-sm px-6 py-3.5 rounded-xl shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2 transition hover:scale-[1.02] active:scale-95 duration-150">
+                  <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+                  <span>🚀 Ya, Lanjut Upload Sekarang</span>
+                </button>
+
+                <button type="button" onclick="skipCurrentJobUpload()" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-semibold text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                  <i data-lucide="check" class="w-4 h-4"></i>
+                  <span>💾 Cukup Simpan Saja (Tanpa Upload)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Player Preview Once Done -->
+        <div id="liveOutputResult" class="hidden pt-4 border-t border-slate-800 space-y-4">
+          <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-medium flex items-center gap-2">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>Pipeline berhasil dijalankan secara penuh! Video dan konten siap dipublikasikan.</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Video Player Preview -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center">
+              <span class="text-xs font-bold text-slate-400 mb-3">Preview Video Render Remotion (9:16)</span>
+              <video id="liveVideoPlayer" controls class="max-h-[380px] rounded-lg shadow-lg border border-slate-800 bg-black"></video>
+            </div>
+
+            <!-- Upload Details & Links -->
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+              <span class="text-xs font-bold text-slate-400">Detail Konten & Link Publikasi</span>
+              <div id="liveDetailsContainer" class="text-xs space-y-2 text-slate-300">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 4: HISTORY & LOGS -->
+    <!-- ==================================================== -->
+    <div id="tab-history" class="tab-content hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">Riwayat Eksekusi & Upload Video</h2>
+          <p class="text-xs text-slate-400">Catatan log lengkap hasil render Remotion dan pengunggahan otomatis.</p>
+        </div>
+        <button onclick="loadLogs(true)" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh Riwayat
+        </button>
+      </div>
+
+      <!-- Active Running Jobs Banner -->
+      <div id="activeJobsContainer" class="space-y-3"></div>
+
+      <div class="bg-surface-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="bg-slate-800/60 text-xs uppercase tracking-wider text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="px-5 py-3 font-semibold">Waktu Selesai</th>
+                <th class="px-5 py-3 font-semibold">Topik</th>
+                <th class="px-5 py-3 font-semibold">Status</th>
+                <th class="px-5 py-3 font-semibold">Link YouTube</th>
+                <th class="px-5 py-3 font-semibold">Link TikTok</th>
+                <th class="px-5 py-3 font-semibold">File MP4</th>
+              </tr>
+            </thead>
+            <tbody id="logsTableBody" class="divide-y divide-slate-800/60 font-mono text-xs">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- TAB 5: SETTINGS & API CONFIGURATION -->
+    <!-- ==================================================== -->
+    <div id="tab-settings" class="tab-content hidden space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">Pengaturan Sistem & Kredensial API</h2>
+          <p class="text-xs text-slate-400">Kelola API Keys Gemini AI, kredensial YouTube OAuth2, dan TikTok Content Posting API.</p>
+        </div>
+      </div>
+
+      <form id="settingsForm" onsubmit="saveSettings(event)" class="space-y-6">
+        
+        <!-- Gemini AI Settings -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-amber-500/10 rounded-xl text-amber-400">
+              <i data-lucide="brain-circuit" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-white">Google Gemini AI</h3>
+              <p class="text-xs text-slate-400">Digunakan untuk generate naskah video, hook, scene props Remotion, judul dan deskripsi viral.</p>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Gemini API Key:
+            </label>
+            <input type="password" id="cfgGeminiKey" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            <span class="text-[11px] text-slate-500 mt-1 block">Dapatkan API Key gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-400 hover:underline">Google AI Studio</a>.</span>
+          </div>
+        </div>
+
+        <!-- YouTube API Settings -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 bg-red-500/10 rounded-xl text-red-500">
+                <i data-lucide="youtube" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-white">YouTube Data API v3</h3>
+                <p class="text-xs text-slate-400">Untuk mengunggah video langsung sebagai YouTube Shorts secara otomatis.</p>
+              </div>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <span class="text-xs text-slate-400">Aktifkan YouTube</span>
+              <input type="checkbox" id="cfgYtEnabled" class="w-4 h-4 text-cyan-500 rounded border-slate-800">
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">YouTube Client ID:</label>
+              <input type="text" id="cfgYtClientId" placeholder="xxxxx.apps.googleusercontent.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">YouTube Client Secret:</label>
+              <input type="password" id="cfgYtClientSecret" placeholder="GOCSPX-..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-950 border border-slate-800 rounded-xl">
+            <div>
+              <div class="text-xs font-bold text-slate-200">Koneksi Akun YouTube (OAuth2 Refresh Token)</div>
+              <div class="text-[11px] text-slate-400">Klik tombol di samping untuk login Google dan mengotorisasi izin upload.</div>
+            </div>
+            <button type="button" onclick="connectYouTubeAuth()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition self-start sm:self-auto shadow-md shadow-red-600/20">
+              <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Hubungkan Akun YouTube
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Refresh Token (Otomatis Terisi):</label>
+              <input type="password" id="cfgYtRefreshToken" placeholder="1//04..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Status Privasi Default:</label>
+              <select id="cfgYtPrivacy" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                <option value="public">Publik (Langsung Tayang ke Penonton)</option>
+                <option value="unlisted">Tidak Publik (Hanya yang punya link)</option>
+                <option value="private">Privat (Hanya Akun Pemilik)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- TikTok API Settings -->
+        <div class="bg-surface-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 bg-cyan-500/10 rounded-xl text-cyan-400">
+                <i data-lucide="music-2" class="w-5 h-5"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-bold text-white">TikTok Content Posting API</h3>
+                <p class="text-xs text-slate-400">Untuk mengunggah video langsung ke akun TikTok Anda secara terintegrasi.</p>
+              </div>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <span class="text-xs text-slate-400">Aktifkan TikTok</span>
+              <input type="checkbox" id="cfgTtEnabled" class="w-4 h-4 text-cyan-500 rounded border-slate-800">
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">TikTok Client Key:</label>
+              <input type="text" id="cfgTtKey" placeholder="aw..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">TikTok Client Secret:</label>
+              <input type="password" id="cfgTtSecret" placeholder="..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Access Token:</label>
+              <input type="password" id="cfgTtAccessToken" placeholder="act.example..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 font-mono">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Privasi TikTok:</label>
+              <select id="cfgTtPrivacy" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                <option value="PUBLIC_TO_EVERYONE">Publik untuk Semua Orang</option>
+                <option value="MUTUAL_FOLLOW_FRIENDS">Teman / Mutual</option>
+                <option value="SELF_ONLY">Hanya Saya (Privat)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end pt-2">
+          <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-lg shadow-cyan-500/25 transition">
+            Simpan Semua Pengaturan
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: TAMBAH / EDIT JADWAL -->
+  <!-- ==================================================== -->
+  <div id="scheduleModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="clock" class="w-4 h-4 text-cyan-400"></i>
+          <span>Atur Jadwal Eksekusi Video</span>
+        </h3>
+        <button onclick="closeModal('scheduleModal')" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="scheduleForm" onsubmit="handleSaveSchedule(event)" class="space-y-4">
+        <input type="hidden" id="schId">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Nama / Label Jadwal:</label>
+          <input type="text" id="schTitle" required placeholder="Misal: Upload Pagi Fakta Sains" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Tipe Waktu:</label>
+            <select id="schTimeType" onchange="toggleTimeInput()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+              <option value="daily">Harian (Jam:Menit)</option>
+              <option value="datetime">Tanggal & Jam Spesifik</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Eksekusi:</label>
+            <input type="time" id="schTimeDaily" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+            <input type="datetime-local" id="schTimeDatetime" class="hidden w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Topik Video:</label>
+          <input type="text" id="schTopic" placeholder="Tulis topik atau ketik 'auto' untuk ambil dari antrean topik" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+          <span class="text-[11px] text-slate-500">Ketik <b>auto</b> jika ingin topik bergantian secara otomatis dari Bank Topik.</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Target Platform Upload:</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-200">
+              <input type="checkbox" id="schPlatformYt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-800">
+              YouTube Shorts
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-200">
+              <input type="checkbox" id="schPlatformTt" checked class="w-4 h-4 text-cyan-500 rounded border-slate-800">
+              TikTok
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-800">
+          <button type="button" onclick="closeModal('scheduleModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-lg">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold rounded-lg shadow-md shadow-cyan-500/20">
+            Simpan Jadwal
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================================================== -->
+  <!-- MODAL: PREVIEW & PUTAR VIDEO -->
+  <!-- ==================================================== -->
+  <div id="videoPreviewModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-surface-900 border border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl relative space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="play-circle" class="w-5 h-5 text-cyan-400"></i>
+          <h3 id="modalVideoTitle" class="text-sm font-bold text-white truncate max-w-[260px]">Putar Video</h3>
+        </div>
+        <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Player Area 9:16 -->
+      <div class="flex justify-center bg-black rounded-xl overflow-hidden border border-slate-800">
+        <video id="modalVideoPlayer" controls playsinline preload="metadata" class="max-h-[500px] w-auto bg-black rounded-lg shadow-xl"></video>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-slate-800 text-xs">
+        <a id="modalDownloadBtn" href="#" target="_blank" download class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 rounded-lg font-bold flex items-center gap-1.5 transition">
+          <i data-lucide="download" class="w-4 h-4"></i> Download File MP4
+        </a>
+        <button type="button" onclick="closeVideoModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-lg transition">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+  <!-- Custom App JavaScript -->
+  <script src="/js/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>
